@@ -1,0 +1,12 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "sejong-festival"
+version = "1.0.0"
+description = "Sejong Festival API"
+requires-python = ">=3.11,<3.12"
+
+[tool.setuptools.packages.find]
+where = ["backend"] 

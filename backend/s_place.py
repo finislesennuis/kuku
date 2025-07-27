@@ -1,4 +1,6 @@
 import requests
+from database import SessionLocal
+from models import Place
 
 # 카카오 REST API 키 (사용자 본인의 키로 교체하세요)
 KAKAO_API_KEY = "a5cc7b65ae5d251113eff578a56cd8f1"
@@ -166,6 +168,51 @@ def display_recommendations(festival_name, recommendations):
             print(f"   🏷️ {place['category']}")
             if i < len(places):
                 print()
+
+def save_places_to_db(festival=None, address=None):
+    """주변 장소 크롤링 후 Place 테이블에 저장"""
+    if not address and festival:
+        address = festivals.get(festival)
+    if not address:
+        print("축제 이름 또는 주소가 필요합니다.")
+        return
+    x, y = get_coordinates_from_address(address)
+    if x is None or y is None:
+        print("좌표 변환 실패")
+        return
+    all_recommendations = []
+    for category_name, category_info in recommendation_categories.items():
+        places = search_places_by_category(x, y, category_info, radius=2000)
+        for place in places:
+            place["category"] = category_name
+        all_recommendations.extend(places)
+    # 중복 제거 (이름+주소 기준)
+    unique_recommendations = []
+    seen = set()
+    for place in all_recommendations:
+        key = (place["name"], place["address"])
+        if key not in seen:
+            unique_recommendations.append(place)
+            seen.add(key)
+    # DB 저장
+    db = SessionLocal()
+    for place in unique_recommendations:
+        exists = db.query(Place).filter(Place.name == place["name"], Place.address == place["address"]).first()
+        if not exists:
+            new_place = Place(
+                name=place["name"],
+                category=place["category"],
+                address=place["address"],
+                lat=float(place.get("x", 0)),
+                lng=float(place.get("y", 0)),
+                description=place.get("category_type", ""),
+                homepage=None,
+                url=place.get("url", None)
+            )
+            db.add(new_place)
+    db.commit()
+    db.close()
+    print(f"✅ {festival or address} 주변 장소 DB 저장 완료")
 
 def main():
     # 사용자에게 축제 선택 요청
