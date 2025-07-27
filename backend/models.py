@@ -1,5 +1,7 @@
-from sqlalchemy import Column, Integer, String, Text, Float
+from sqlalchemy import Column, Integer, String, Text, Float, DateTime, Enum
+from sqlalchemy.sql import func
 from database import Base
+import enum
 
 class Festival(Base):
     __tablename__ = "festivals"
@@ -54,3 +56,22 @@ class Place(Base):
     description = Column(Text)
     homepage = Column(String)
     url = Column(String)  # 원본 세종시 홈페이지 URL
+
+class RequestStatus(enum.Enum):
+    pending = "pending"
+    done = "done"
+    failed = "failed"
+
+class CrawlRequest(Base):
+    __tablename__ = "crawl_requests"
+    id = Column(Integer, primary_key=True, index=True)
+    url = Column(String, nullable=False)
+    status = Column(Enum(RequestStatus), default=RequestStatus.pending)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class CrawledData(Base):
+    __tablename__ = "crawled_data"
+    id = Column(Integer, primary_key=True, index=True)
+    url = Column(String, nullable=False)
+    data = Column(Text, nullable=False)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

@@ -1,5 +1,5 @@
 import os
-from pydantic import BaseSettings # <<< 변경: pydantic_settings 대신 pydantic에서 BaseSettings 임포트
+from pydantic_settings import BaseSettings
 from dotenv import load_dotenv     # <<< 추가: python-dotenv 임포트
 from typing import Optional
 
