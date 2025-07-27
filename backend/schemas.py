@@ -1,15 +1,15 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Union, Optional
 
 class PlaceBase(BaseModel):
     name: str
     category: str
-    address: str | None = None
-    lat: float | None = None
-    lng: float | None = None
-    description: str | None = None
-    homepage: str | None = None
-    url: str | None = None
+    address: Optional[str] = None
+    lat: Optional[float] = None
+    lng: Optional[float] = None
+    description: Optional[str] = None
+    homepage: Optional[str] = None
+    url: Optional[str] = None
 
 class PlaceCreate(PlaceBase):
     pass
@@ -24,13 +24,13 @@ class FestivalBase(BaseModel):
     date: str
     time: str
     location: str
-    description: str | None = None  # 실제 DB 테이블 구조에 맞게 수정
-    contact: str | None = None
-    image_url: str | None = None
-    programs: str | None = None
-    url: str | None = None
-    lat: float | None = None
-    lng: float | None = None
+    description: Optional[str] = None  # 실제 DB 테이블 구조에 맞게 수정
+    contact: Optional[str] = None
+    image_url: Optional[str] = None
+    programs: Optional[str] = None
+    url: Optional[str] = None
+    lat: Optional[float] = None
+    lng: Optional[float] = None
 
 class FestivalCreate(FestivalBase):
     pass
@@ -58,8 +58,8 @@ class YouTubeLink(YouTubeLinkBase):
 
 class CourseBase(BaseModel):
     name: str
-    img: str | None = None
-    detail_url: str | None = None
+    img: Optional[str] = None
+    detail_url: Optional[str] = None
 
 class CourseCreate(CourseBase):
     places: List[str]
