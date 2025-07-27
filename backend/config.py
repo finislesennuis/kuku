@@ -28,6 +28,9 @@ class Settings(BaseSettings):
         "http://localhost:5173",  # Vite 개발 서버
         "http://127.0.0.1:3000",
         "http://127.0.0.1:5173",
+        "https://kaia-coder.github.io",  # GitHub Pages 도메인
+        "https://kaia-coder.github.io/DX-Hackathon",  # GitHub Pages 전체 경로
+        "https://*.github.io",  # 모든 GitHub Pages 서브도메인
     ]
     
     # 앱 설정
