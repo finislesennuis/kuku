@@ -1,5 +1,5 @@
 import os
-from pydantic import BaseSettings
+from pydantic_settings import BaseSettings
 from dotenv import load_dotenv     # <<< 추가: python-dotenv 임포트
 from typing import Optional
 
@@ -35,7 +35,7 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
     
     # 로컬 크롤러 설정
-    LOCAL_CRAWLER_URL: str = "https://60722f2d718d.ngrok-free.app"
+    LOCAL_CRAWLER_URL: str = "https://60722f2d718d.ngrok-free.app"  # 새로운 ngrok URL로 변경 필요
     
     class Config:
         # Pydantic 1.x BaseSettings의 Config

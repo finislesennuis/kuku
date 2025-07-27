@@ -1,7 +1,12 @@
 from fastapi import APIRouter, BackgroundTasks, HTTPException
 import requests
+import logging
 from typing import Optional
 from config import settings
+
+# 로거 설정
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -25,40 +30,49 @@ def request_local_crawler(type: str, url: Optional[str] = None, festival: Option
     except requests.exceptions.RequestException as e:
         raise HTTPException(status_code=500, detail=f"로컬 크롤러 연결 실패: {str(e)}")
 
-@router.post("/crawl/festivals")
-async def crawl_festivals():
-    """축제 정보 크롤링 실행 - 로컬 크롤러로 요청"""
+@router.post("/crawl/sejong_festival")
+async def crawl_sejong_festival():
+    """세종축제 크롤링"""
     try:
-        # 세종축제 크롤링
-        result1 = request_local_crawler(
-            type="festival", 
-            url="https://sjfestival.kr"
-        )
-        
-        # 세종 빛 축제 크롤링
-        result2 = request_local_crawler(
-            type="festival", 
-            url="https://sejong.go.kr/tour/sub02_0104.do"
-        )
-        
-        # 세종 낙화축제 크롤링
-        result3 = request_local_crawler(
-            type="festival", 
-            url="https://sjcf.or.kr/content.do?key=2111060044"
-        )
-        
-        # 조치원복숭아축제 크롤링
-        result4 = request_local_crawler(
-            type="festival", 
-            url="https://jcwpeach.kr"
-        )
-        
-        return {
-            "message": "축제 크롤링이 시작되었습니다.",
-            "results": [result1, result2, result3, result4]
-        }
+        logger.info("세종축제 크롤링 요청")
+        result = request_local_crawler(type="festival", url="https://sjfestival.kr")
+        return {"message": "세종축제 크롤링 완료", "result": result}
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"축제 크롤링 실패: {str(e)}")
+        logger.error(f"세종축제 크롤링 실패: {e}")
+        raise HTTPException(status_code=500, detail=f"세종축제 크롤링 실패: {str(e)}")
+
+@router.post("/crawl/light_festival")
+async def crawl_light_festival():
+    """세종 빛 축제 크롤링"""
+    try:
+        logger.info("세종 빛 축제 크롤링 요청")
+        result = request_local_crawler(type="festival", url="https://sejong.go.kr/tour/sub02_0104.do")
+        return {"message": "세종 빛 축제 크롤링 완료", "result": result}
+    except Exception as e:
+        logger.error(f"세종 빛 축제 크롤링 실패: {e}")
+        raise HTTPException(status_code=500, detail=f"세종 빛 축제 크롤링 실패: {str(e)}")
+
+@router.post("/crawl/fire_festival")
+async def crawl_fire_festival():
+    """세종 낙화축제 크롤링"""
+    try:
+        logger.info("세종 낙화축제 크롤링 요청")
+        result = request_local_crawler(type="festival", url="https://sjcf.or.kr/content.do?key=2111060044")
+        return {"message": "세종 낙화축제 크롤링 완료", "result": result}
+    except Exception as e:
+        logger.error(f"세종 낙화축제 크롤링 실패: {e}")
+        raise HTTPException(status_code=500, detail=f"세종 낙화축제 크롤링 실패: {str(e)}")
+
+@router.post("/crawl/peach_festival")
+async def crawl_peach_festival():
+    """조치원복숭아축제 크롤링"""
+    try:
+        logger.info("조치원복숭아축제 크롤링 요청")
+        result = request_local_crawler(type="festival", url="https://jcwpeach.kr")
+        return {"message": "조치원복숭아축제 크롤링 완료", "result": result}
+    except Exception as e:
+        logger.error(f"조치원복숭아축제 크롤링 실패: {e}")
+        raise HTTPException(status_code=500, detail=f"조치원복숭아축제 크롤링 실패: {str(e)}")
 
 @router.post("/crawl/courses")
 async def crawl_courses():
