@@ -62,10 +62,10 @@ def create_course(db: Session, course: schemas.CourseCreate):
     db.add(db_course)
     db.commit()
     db.refresh(db_course)
-    # 코스별 장소 저장
+    # 코스별 장소 저장 (CoursePlace 테이블에만 저장)
     for place_name in course.places:
-        db_place = CoursePlace(course_id=db_course.id, place_name=place_name)
-        db.add(db_place)
+        db_course_place = CoursePlace(course_id=db_course.id, place_name=place_name)
+        db.add(db_course_place)
     db.commit()
     return db_course
 
