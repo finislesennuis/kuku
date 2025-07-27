@@ -17,7 +17,7 @@ class PlaceCreate(PlaceBase):
 class Place(PlaceBase):
     id: int
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class FestivalBase(BaseModel):
     name: str
@@ -39,7 +39,7 @@ class Festival(FestivalBase):
     id: int
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class YouTubeLinkBase(BaseModel):
     title: str
@@ -54,7 +54,7 @@ class YouTubeLink(YouTubeLinkBase):
     id: int
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class CourseBase(BaseModel):
     name: str
@@ -67,7 +67,7 @@ class CourseCreate(CourseBase):
 class Course(CourseBase):
     id: int
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 class CoursePlaceBase(BaseModel):
     course_id: int
@@ -79,4 +79,4 @@ class CoursePlaceCreate(CoursePlaceBase):
 class CoursePlace(CoursePlaceBase):
     id: int
     class Config:
-        from_attributes = True
+        orm_mode = True

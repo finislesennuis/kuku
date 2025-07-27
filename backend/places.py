@@ -8,10 +8,14 @@ crud = import_module('crud')
 router = APIRouter()
 
 @router.get("/places/", response_model=list[schemas.Place])
+@router.get("/places", response_model=list[schemas.Place])
 def read_places(category: str = None, db: Session = Depends(get_db)):
-    if category:
-        return crud.get_places_by_category(db, category)
-    return crud.get_all_places(db)
+    try:
+        if category:
+            return crud.get_places_by_category(db, category)
+        return crud.get_all_places(db)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"데이터베이스 오류: {str(e)}")
 
 @router.post("/places/", response_model=schemas.Place)
 def create_place(place: schemas.PlaceCreate, db: Session = Depends(get_db)):

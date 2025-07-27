@@ -11,6 +11,7 @@ router = APIRouter()
 
 # ✅ 기존 기능: 전체 조회
 @router.get("/festivals/")
+@router.get("/festivals")
 def read_festivals(db: Session = Depends(get_db)):
     try:
         festivals = crud.get_all_festivals(db)
