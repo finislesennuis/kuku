@@ -139,7 +139,8 @@ def crawl_travel_course(driver, course_info):
                     address=address,
                     lat=lat,
                     lng=lng,
-                    description=description
+                    description=description,
+                    source="course"
                 )
                 db.add(new_place)
                 db.commit()

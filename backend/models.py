@@ -56,6 +56,7 @@ class Place(Base):
     description = Column(Text)
     homepage = Column(String)
     url = Column(String)  # 원본 세종시 홈페이지 URL
+    source = Column(String, nullable=True)  # 데이터 출처 (course, festival_places)
 
 class RequestStatus(enum.Enum):
     pending = "pending"

@@ -207,7 +207,8 @@ def save_places_to_db(festival=None, address=None):
                 lng=float(place.get("y", 0)),
                 description=place.get("category_type", ""),
                 homepage=None,
-                url=place.get("url", None)
+                url=place.get("url", None),
+                source="festival_places"
             )
             db.add(new_place)
     db.commit()
