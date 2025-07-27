@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 import festivals, links, search
 from places import router as places_router
 from crawler_api import router as crawler_router
@@ -44,10 +45,11 @@ app = FastAPI(
 # CORS 설정 (프론트엔드 연동용)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.CORS_ORIGINS,
-    allow_credentials=True,
-    allow_methods=["*"],
+    allow_origins=["*"],  # 모든 도메인 허용 (개발용)
+    allow_credentials=False,  # credentials 사용하지 않으므로 False
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["*"],
+    expose_headers=["*"]
 )
 
 # 라우터 등록
@@ -59,11 +61,18 @@ app.include_router(crawler_router, prefix="/api", tags=["crawlers"])
 
 @app.get("/")
 def root():
-    return {
-        "message": "세모(세종에서 모하지) 백엔드 API",
-        "version": settings.APP_VERSION,
-        "docs": "/docs"
-    }
+    return JSONResponse(
+        content={
+            "message": "세모(세종에서 모하지) 백엔드 API",
+            "version": settings.APP_VERSION,
+            "docs": "/docs"
+        },
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "*"
+        }
+    )
 
 @app.get("/health")
 def health_check():
@@ -74,26 +83,55 @@ def debug_db():
     """DB 연결 및 데이터 조회 디버깅"""
     try:
         from database import SessionLocal
-        from models import Festival
+        from models import Festival, Place, Course
         
         db = SessionLocal()
-        festivals = db.query(Festival).all()
-        db.close()
+        
+        # 테이블 존재 확인
+        try:
+            festival_count = db.query(Festival).count()
+            place_count = db.query(Place).count()
+            course_count = db.query(Course).count()
+            
+            return {
+                "status": "success",
+                "database_info": {
+                    "festival_count": festival_count,
+                    "place_count": place_count,
+                    "course_count": course_count
+                },
+                "message": "데이터베이스 연결 성공"
+            }
+        except Exception as table_error:
+            return {
+                "status": "error",
+                "error": f"테이블 조회 오류: {str(table_error)}",
+                "message": "테이블이 존재하지 않거나 접근할 수 없습니다"
+            }
+        finally:
+            db.close()
+    except Exception as e:
+        return {
+            "status": "error",
+            "error": str(e),
+            "message": "데이터베이스 연결 실패"
+        }
+
+@app.get("/debug/init-db")
+def init_database():
+    """데이터베이스 테이블 재생성"""
+    try:
+        # 테이블 삭제 후 재생성
+        Base.metadata.drop_all(bind=engine)
+        Base.metadata.create_all(bind=engine)
         
         return {
             "status": "success",
-            "festival_count": len(festivals),
-            "festivals": [
-                {
-                    "id": f.id,
-                    "name": f.name,
-                    "date": f.date,
-                    "description": f.description
-                } for f in festivals
-            ]
+            "message": "데이터베이스 테이블이 성공적으로 초기화되었습니다"
         }
     except Exception as e:
         return {
             "status": "error",
-            "error": str(e)
+            "error": str(e),
+            "message": "데이터베이스 초기화 실패"
         }

@@ -31,6 +31,7 @@ class Settings(BaseSettings):
         "https://kaia-coder.github.io",  # GitHub Pages 도메인
         "https://kaia-coder.github.io/DX-Hackathon",  # GitHub Pages 전체 경로
         "https://*.github.io",  # 모든 GitHub Pages 서브도메인
+        "*",  # 모든 도메인 허용 (개발용)
     ]
     
     # 앱 설정
