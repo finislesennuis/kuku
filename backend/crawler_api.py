@@ -27,10 +27,10 @@ async def crawl_places(background_tasks: BackgroundTasks):
 @router.post("/crawl/all")
 async def crawl_all(background_tasks: BackgroundTasks):
     """모든 크롤링 실행"""
-    background_tasks.add_task(s_festival.run_crawler)
-    background_tasks.add_task(s_light.run_crawler)
-    background_tasks.add_task(f_flower.run_crawler)
-    background_tasks.add_task(jcwpeach.run_crawler)
+    background_tasks.add_task(s_festival.crawl_sejong_festival)
+    background_tasks.add_task(s_light.crawl_sejong_light_festival)
+    background_tasks.add_task(f_flower.crawl_sejong_fire_festival)
+    background_tasks.add_task(jcwpeach.crawl_jcwpeach_final)
     background_tasks.add_task(course_crawler.run_course_crawler)
     background_tasks.add_task(s_place.main)
     return {"message": "모든 크롤링이 시작되었습니다."} 
