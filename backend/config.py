@@ -1,5 +1,5 @@
 import os
-from pydantic_settings import BaseSettings
+from pydantic import BaseSettings
 from dotenv import load_dotenv     # <<< 추가: python-dotenv 임포트
 from typing import Optional
 
