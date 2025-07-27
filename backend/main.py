@@ -4,12 +4,36 @@ import festivals, links, search
 from places import router as places_router
 from crawler_api import router as crawler_router
 
-from models import Festival
-from database import Base, engine
+from models import Festival, Place, Course
+from database import Base, engine, SessionLocal
 from config import settings
 
 # DB 테이블 생성
 Base.metadata.create_all(bind=engine)
+
+# 초기 데이터 확인
+def check_initial_data():
+    try:
+        db = SessionLocal()
+        
+        # 테이블 존재 확인
+        festival_count = db.query(Festival).count()
+        place_count = db.query(Place).count()
+        course_count = db.query(Course).count()
+        
+        print(f"📊 초기 데이터 확인:")
+        print(f"   - 축제: {festival_count}개")
+        print(f"   - 장소: {place_count}개")
+        print(f"   - 코스: {course_count}개")
+        
+        if place_count == 0:
+            print("⚠️  Place 테이블에 데이터가 없습니다!")
+        
+        db.close()
+    except Exception as e:
+        print(f"❌ 초기 데이터 확인 오류: {e}")
+
+check_initial_data()
 
 app = FastAPI(
     title=settings.APP_NAME,
