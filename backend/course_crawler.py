@@ -130,38 +130,22 @@ def crawl_travel_course(driver, course_info):
             else:
                 print(f"   🗺️ 좌표 변환 완료: {lat}, {lng}")
             
-            # Place 테이블에 저장 (중복 체크)
-            existing_place = db.query(Place).filter(Place.name == place_name).first()
-            if not existing_place:
-                new_place = Place(
-                    name=place_name,
-                    category=course_info["name"],
-                    address=address,
-                    lat=lat,
-                    lng=lng,
-                    description=description,
-                    source="course"
-                )
-                db.add(new_place)
-                db.commit()
-                print(f"   ✅ 장소 저장 완료: {place_name}")
-            else:
-                # 기존 장소 정보 업데이트
-                existing_place.category = course_info["name"]
-                existing_place.address = address
-                existing_place.lat = lat
-                existing_place.lng = lng
-                existing_place.description = description
-                db.commit()
-                print(f"   🔄 장소 정보 업데이트: {place_name}")
+            # CoursePlace 테이블에만 저장 (코스-장소 연결)
+            # 중복 체크
+            existing_course_place = db.query(CoursePlace).filter(
+                CoursePlace.course_id == course_id,
+                CoursePlace.place_name == place_name
+            ).first()
             
-            # CoursePlace 테이블에 저장 (코스-장소 연결)
-            new_course_place = CoursePlace(
-                course_id=course_id,
-                place_name=place_name
-            )
-            db.add(new_course_place)
-            print(f"   🔗 코스-장소 연결 완료: {place_name}")
+            if not existing_course_place:
+                new_course_place = CoursePlace(
+                    course_id=course_id,
+                    place_name=place_name
+                )
+                db.add(new_course_place)
+                print(f"   🔗 코스-장소 연결 완료: {place_name}")
+            else:
+                print(f"   ⚠️ 이미 연결된 장소: {place_name}")
             
         except Exception as e:
             print(f"   ❌ 장소 크롤링 오류: {e}")
