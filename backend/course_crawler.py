@@ -13,7 +13,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 
 from database import SessionLocal
-from models import Course, CoursePlace, Place
+from models import Course, CoursePlace
 
 # 카카오 REST API 키 (주소를 좌표로 변환하기 위해 필요)
 KAKAO_API_KEY = "a5cc7b65ae5d251113eff578a56cd8f1"
