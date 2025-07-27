@@ -6,10 +6,10 @@ router = APIRouter()
 @router.post("/crawl/festivals")
 async def crawl_festivals(background_tasks: BackgroundTasks):
     """축제 정보 크롤링 실행"""
-    background_tasks.add_task(s_festival.run_crawler)
-    background_tasks.add_task(s_light.run_crawler)
-    background_tasks.add_task(f_flower.run_crawler)
-    background_tasks.add_task(jcwpeach.run_crawler)
+    background_tasks.add_task(s_festival.crawl_sejong_festival)
+    background_tasks.add_task(s_light.crawl_sejong_light_festival)
+    background_tasks.add_task(f_flower.crawl_sejong_fire_festival)
+    background_tasks.add_task(jcwpeach.crawl_jcwpeach_final)
     return {"message": "축제 크롤링이 시작되었습니다."}
 
 @router.post("/crawl/courses")
