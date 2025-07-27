@@ -89,17 +89,18 @@ async def crawl_courses():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"여행코스 크롤링 실패: {str(e)}")
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class PlacesRequest(BaseModel):
-    festival: str
-    address: Optional[str] = None
+    festival: str = Field(..., description="축제 이름 (예: 세종축제, 조치원복숭아축제, 세종낙화축제, 세종 빛 축제)")
 
 @router.post("/crawl/places")
 async def crawl_places(request: PlacesRequest):
-    """주변 장소 크롤링 실행 - 축제 이름만 입력하면 자동으로 주소 매핑"""
+    """주변 장소 크롤링 실행 - 축제 이름만 입력하면 s_place.py의 저장된 주소로 자동 매핑"""
     try:
-        # 축제별 주소 매핑
+        festival = request.festival
+        
+        # s_place.py의 festivals 딕셔너리와 동일한 주소 매핑
         festival_addresses = {
             "세종축제": "세종특별자치시 세종동 1201",
             "조치원복숭아축제": "세종특별자치시 조치원읍 대첩로 98",
@@ -107,14 +108,10 @@ async def crawl_places(request: PlacesRequest):
             "세종 빛 축제": "세종특별자치시 보람동 623-1"
         }
         
-        festival = request.festival
-        address = request.address
-        
-        # 주소가 제공되지 않으면 축제 이름으로 자동 매핑
+        # 축제 이름으로 주소 자동 매핑
+        address = festival_addresses.get(festival)
         if not address:
-            address = festival_addresses.get(festival)
-            if not address:
-                raise HTTPException(status_code=400, detail=f"'{festival}' 축제의 주소 정보가 없습니다. 지원되는 축제: {list(festival_addresses.keys())}")
+            raise HTTPException(status_code=400, detail=f"'{festival}' 축제의 주소 정보가 없습니다. 지원되는 축제: {list(festival_addresses.keys())}")
         
         result = request_local_crawler(
             type="places", 

@@ -174,7 +174,7 @@ def save_places_to_db(festival=None, address=None):
     if not address and festival:
         address = festivals.get(festival)
     if not address:
-        print("축제 이름 또는 주소가 필요합니다.")
+        print(f"축제 '{festival}'의 주소 정보가 없습니다. 지원되는 축제: {list(festivals.keys())}")
         return
     x, y = get_coordinates_from_address(address)
     if x is None or y is None:
