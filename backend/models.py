@@ -11,7 +11,7 @@ class Festival(Base):
     date = Column(String)
     time = Column(String)
     location = Column(String)
-    descript = Column(Text)  # DB 테이블 구조에 맞게 수정
+    description = Column(Text)  # 실제 DB 테이블 구조에 맞게 수정
     contact = Column(String, nullable=True)
     image_url = Column(String, nullable=True)
     programs = Column(Text, nullable=True)

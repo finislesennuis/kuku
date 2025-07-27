@@ -24,7 +24,7 @@ class FestivalBase(BaseModel):
     date: str
     time: str
     location: str
-    descript: str | None = None  # DB 테이블 구조에 맞게 수정
+    description: str | None = None  # 실제 DB 테이블 구조에 맞게 수정
     contact: str | None = None
     image_url: str | None = None
     programs: str | None = None

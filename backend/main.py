@@ -64,7 +64,7 @@ def debug_db():
                     "id": f.id,
                     "name": f.name,
                     "date": f.date,
-                    "descript": f.descript
+                    "description": f.description
                 } for f in festivals
             ]
         }
