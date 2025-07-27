@@ -179,39 +179,57 @@ def crawl_jcwpeach_final():
         driver.get("http://www.jcwpeach.kr/dh/2025_schedule")
         time.sleep(3)
         
-        text = driver.find_element(By.TAG_NAME, "body").text
+        soup = BeautifulSoup(driver.page_source, "html.parser")
         found_time = False
         
-        # 시간 패턴 찾기
-        time_patterns = [
-            r'시간[:\s]*([0-9]{1,2}:[0-9]{2}[~-][0-9]{1,2}:[0-9]{2})',
-            r'([0-9]{1,2}시[~-][0-9]{1,2}시)',
-            r'(오전[0-9]{1,2}시[~-]오후[0-9]{1,2}시)',
-            r'(오후[0-9]{1,2}시[~-]오후[0-9]{1,2}시)'
+        # 시간 정보를 찾기 위한 더 정확한 선택자들
+        time_selectors = [
+            "div.txt_box p",
+            "div.txt_box div",
+            ".content_txt p",
+            ".content_txt div",
+            "p",
+            "div"
         ]
         
-        for pattern in time_patterns:
-            match = re.search(pattern, text)
-            if match:
-                time_info = match.group(1) if match.groups() else match.group(0)
-                update_if_better("time", time_info)
-                print(f"   ✅ 시간 찾음: {time_info}")
-                found_time = True
+        for selector in time_selectors:
+            elements = soup.select(selector)
+            for element in elements:
+                text = clean_text(element.get_text())
+                if len(text) < 100 and any(keyword in text for keyword in ["시간", "오전", "오후", "시", "분"]):
+                    if any(char.isdigit() for char in text):
+                        # 불필요한 텍스트 제거
+                        if not any(unwanted in text for unwanted in ["복숭아", "굿즈몰", "전시관", "산업"]):
+                            update_if_better("time", text)
+                            print(f"   ✅ 시간 정보: {text}")
+                            found_time = True
+                            break
+            if found_time:
                 break
         
+        # 정규식으로 시간 패턴 찾기
         if not found_time:
-            # 줄별로 시간 정보 찾기
-            for line in text.splitlines():
-                line = line.strip()
-                if any(keyword in line for keyword in ["시간", "오전", "오후", "시", "분"]) and len(line) < 50:
-                    if any(char.isdigit() for char in line):
-                        update_if_better("time", line)
-                        print(f"   ✅ 시간 정보: {line}")
-                        break
+            page_text = soup.get_text()
+            time_patterns = [
+                r'시간[:\s]*([0-9]{1,2}:[0-9]{2}[~-][0-9]{1,2}:[0-9]{2})',
+                r'([0-9]{1,2}시[~-][0-9]{1,2}시)',
+                r'(오전[0-9]{1,2}시[~-]오후[0-9]{1,2}시)',
+                r'(오후[0-9]{1,2}시[~-]오후[0-9]{1,2}시)',
+                r'([0-9]{1,2}:[0-9]{2}[~-][0-9]{1,2}:[0-9]{2})'
+            ]
             
-            if not festival_info["time"]:
-                festival_info["time"] = "홈페이지 참고"
-                print("   ⚠️ 시간 정보를 찾을 수 없어 기본값 설정")
+            for pattern in time_patterns:
+                match = re.search(pattern, page_text)
+                if match:
+                    time_info = match.group(1) if match.groups() else match.group(0)
+                    update_if_better("time", time_info)
+                    print(f"   ✅ 시간 패턴 찾음: {time_info}")
+                    found_time = True
+                    break
+            
+        if not found_time:
+            festival_info["time"] = "홈페이지 참고"
+            print("   ⚠️ 시간 정보를 찾을 수 없어 기본값 설정")
                 
     except Exception as e:
         print(f"   ❌ [schedule] 시간 추출 실패: {e}")
