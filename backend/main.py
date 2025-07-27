@@ -59,6 +59,19 @@ app.include_router(places_router, prefix="/api", tags=["places"])
 app.include_router(search.router, prefix="/api", tags=["search"])
 app.include_router(crawler_router, prefix="/api", tags=["crawlers"])
 
+@app.options("/{full_path:path}")
+async def options_handler(full_path: str):
+    """CORS preflight 요청 처리"""
+    return JSONResponse(
+        content={},
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Max-Age": "86400"
+        }
+    )
+
 @app.get("/")
 def root():
     return JSONResponse(

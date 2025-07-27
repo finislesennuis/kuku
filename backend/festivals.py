@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from database import get_db
 from importlib import import_module
@@ -8,6 +9,17 @@ from models import Festival
 from utils import haversine  # ✅ 새로 추가한 유틸 함수
 
 router = APIRouter()
+
+# CORS 헤더 함수
+def add_cors_headers(response_data):
+    return JSONResponse(
+        content=response_data,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "*"
+        }
+    )
 
 # ✅ 기존 기능: 전체 조회
 @router.get("/festivals/")
@@ -25,9 +37,9 @@ def read_festivals(db: Session = Depends(get_db)):
                 "location": f.location,
                 "description": f.description
             })
-        return result
+        return add_cors_headers(result)
     except Exception as e:
-        return {"error": str(e)}
+        return add_cors_headers({"error": str(e)})
 
 # ✅ 기존 기능: 축제 등록
 @router.post("/festivals/", response_model=schemas.Festival)

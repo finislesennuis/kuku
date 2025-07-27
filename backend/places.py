@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
 from database import get_db
 from importlib import import_module
@@ -7,6 +8,17 @@ crud = import_module('crud')
 from models import Place
 
 router = APIRouter()
+
+# CORS 헤더 함수
+def add_cors_headers(response_data):
+    return JSONResponse(
+        content=response_data,
+        headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+            "Access-Control-Allow-Headers": "*"
+        }
+    )
 
 @router.get("/places/", response_model=list[schemas.Place])
 @router.get("/places", response_model=list[schemas.Place])
@@ -20,7 +32,7 @@ def read_places(category: str = None, db: Session = Depends(get_db)):
             print("✅ 데이터베이스 연결 성공")
         except Exception as db_error:
             print(f"❌ 데이터베이스 연결 실패: {db_error}")
-            raise HTTPException(status_code=500, detail=f"데이터베이스 연결 오류: {str(db_error)}")
+            return add_cors_headers({"error": f"데이터베이스 연결 오류: {str(db_error)}"})
         
         # Place 테이블 존재 확인
         try:
@@ -28,7 +40,7 @@ def read_places(category: str = None, db: Session = Depends(get_db)):
             print(f"✅ Place 테이블 확인됨 - 총 {place_count}개 레코드")
         except Exception as table_error:
             print(f"❌ Place 테이블 오류: {table_error}")
-            raise HTTPException(status_code=500, detail=f"Place 테이블 오류: {str(table_error)}")
+            return add_cors_headers({"error": f"Place 테이블 오류: {str(table_error)}"})
         
         if category:
             places = crud.get_places_by_category(db, category)
@@ -37,14 +49,14 @@ def read_places(category: str = None, db: Session = Depends(get_db)):
             places = crud.get_all_places(db)
             print(f"✅ 전체 {len(places)}개 장소 조회 성공")
         
-        return places
+        return add_cors_headers(places)
     except HTTPException:
         raise
     except Exception as e:
         print(f"❌ Places API 예상치 못한 오류: {e}")
         import traceback
         traceback.print_exc()
-        raise HTTPException(status_code=500, detail=f"서버 내부 오류: {str(e)}")
+        return add_cors_headers({"error": f"서버 내부 오류: {str(e)}"})
 
 @router.post("/places/", response_model=schemas.Place)
 def create_place(place: schemas.PlaceCreate, db: Session = Depends(get_db)):
